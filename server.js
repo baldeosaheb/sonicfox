@@ -19,7 +19,7 @@ const db = new sqlite3.Database('database.db', (err) => {
   }
 });
 
-// Create tables
+// Create tables and run migrations
 db.serialize(() => {
   db.run(`
     CREATE TABLE IF NOT EXISTS codes (
@@ -37,6 +37,13 @@ db.serialize(() => {
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Migration: add title column if it doesn't exist
+  db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, (err) => {
+    if (err && !err.message.includes('duplicate column')) {
+      console.error('Migration error:', err.message);
+    }
+  });
 });
 
 // Middleware
@@ -69,6 +76,14 @@ app.get('/', (req, res) => {
 app.get('/admin', (req, res) => {
   if (req.session.loggedIn) {
     res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  }
+});
+
+app.get('/admin/codes', (req, res) => {
+  if (req.session.loggedIn) {
+    res.sendFile(path.join(__dirname, 'public', 'codes.html'));
   } else {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
   }
@@ -185,11 +200,76 @@ app.post('/api/add-codes', (req, res) => {
       if (!err && this.changes > 0) {
         added++;
       }
-      
       if (processed === codes.length) {
         res.json({ success: true, added });
       }
     });
+  });
+});
+
+// ── Codes CRUD (admin only) ──────────────────────────────────────────────────
+
+// GET all codes
+app.get('/api/codes', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+
+  db.all('SELECT * FROM codes ORDER BY id DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(rows);
+  });
+});
+
+// POST create a new code
+app.post('/api/codes', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { code, title } = req.body;
+  if (!code || !code.trim()) return res.status(400).json({ error: 'Code is required' });
+
+  db.run(
+    'INSERT INTO codes (code, title) VALUES (?, ?)',
+    [code.trim(), (title || '').trim()],
+    function(err) {
+      if (err) {
+        if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Code already exists' });
+        return res.status(500).json({ error: 'Database error' });
+      }
+      res.json({ success: true, id: this.lastID });
+    }
+  );
+});
+
+// PUT update a code (code value, title, used status)
+app.put('/api/codes/:id', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+
+  const { code, title, used } = req.body;
+  const { id } = req.params;
+
+  if (!code || !code.trim()) return res.status(400).json({ error: 'Code is required' });
+
+  db.run(
+    'UPDATE codes SET code = ?, title = ?, used = ? WHERE id = ?',
+    [code.trim(), (title || '').trim(), used ? 1 : 0, id],
+    function(err) {
+      if (err) {
+        if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Code already exists' });
+        return res.status(500).json({ error: 'Database error' });
+      }
+      if (this.changes === 0) return res.status(404).json({ error: 'Code not found' });
+      res.json({ success: true });
+    }
+  );
+});
+
+// DELETE a code
+app.delete('/api/codes/:id', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+
+  db.run('DELETE FROM codes WHERE id = ?', [req.params.id], function(err) {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    if (this.changes === 0) return res.status(404).json({ error: 'Code not found' });
+    res.json({ success: true });
   });
 });
 

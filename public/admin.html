@@ -70,6 +70,11 @@
             background: #e74c3c;
         }
 
+        button.codes-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
         .container {
             background: white;
             border-radius: 15px;
@@ -162,6 +167,7 @@
         <div class="header-actions">
             <span class="stats" id="stats">Loading...</span>
             <button onclick="loadSubmissions()">Refresh</button>
+            <button class="codes-btn" onclick="window.location.href='/admin/codes'">Manage Codes</button>
             <button class="logout" onclick="logout()">Logout</button>
         </div>
     </div>
