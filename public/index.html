@@ -118,12 +118,33 @@
             margin-top: 40px;
             padding-top: 30px;
             border-top: 2px solid #ecf0f1;
+            text-align: center;
+        }
+
+        .reveal-btn {
+            background: none;
+            border: 2px dashed #bdc3c7;
+            color: #7f8c8d;
+            padding: 10px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        .reveal-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: #f0f4ff;
         }
 
         .qr-title {
             color: #2c3e50;
             font-size: 14px;
             margin-bottom: 15px;
+            margin-top: 20px;
             font-weight: 600;
         }
 
@@ -190,7 +211,7 @@
 
         <div class="description">
             <strong>Important Notice:</strong><br>
-            This is a demo trial version and hence is restrictive in nature. The access code will be sent to your email ID from where you can access the product.
+            Being very straightforward. I am not the owner of the original content. The access code will be sent to your email ID from where you can access the product.
         </div>
 
         <form id="emailForm">
@@ -210,9 +231,14 @@
         <div id="message" class="message"></div>
 
         <div class="qr-section">
-            <p class="qr-title">Scan the QR Code to Connect with Me</p>
-            <div class="qr-code">
-                <img src="/qr.jpg" alt="QR Code">
+            <button class="reveal-btn" id="revealBtn" onclick="toggleQR()">
+                Show QR Code &darr;
+            </button>
+            <div id="qrWrapper" style="display:none;">
+                <p class="qr-title">Scan the QR Code to Connect with Me</p>
+                <div class="qr-code">
+                    <img src="/qr.jpg" alt="QR Code">
+                </div>
             </div>
         </div>
     </div>
@@ -266,6 +292,14 @@
             messageDiv.textContent = text;
             messageDiv.className = `message ${type}`;
             messageDiv.style.display = 'block';
+        }
+
+        function toggleQR() {
+            const wrapper = document.getElementById('qrWrapper');
+            const btn     = document.getElementById('revealBtn');
+            const visible = wrapper.style.display !== 'none';
+            wrapper.style.display = visible ? 'none' : 'block';
+            btn.innerHTML = visible ? 'Show QR Code &darr;' : 'Hide QR Code &uarr;';
         }
     </script>
 </body>
