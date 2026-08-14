@@ -5,14 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard - Hidden Future Entertainment</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #f5f7fa;
             min-height: 100vh;
             padding: 20px;
@@ -22,8 +18,8 @@
             background: white;
             padding: 20px 30px;
             border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -31,250 +27,423 @@
             gap: 15px;
         }
 
-        h1 {
-            color: #2c3e50;
-            font-size: 24px;
-        }
+        h1 { color: #2c3e50; font-size: 22px; }
 
-        .header-actions {
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+        /* ── Serial Number Card ── */
+        .serial-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            padding: 24px 30px;
+            margin-bottom: 24px;
             display: flex;
-            gap: 10px;
             align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .stats {
-            color: #7f8c8d;
-            font-size: 14px;
-            padding: 8px 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
+        .serial-icon {
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            flex-shrink: 0;
         }
 
-        button {
+        .serial-info { flex: 1; min-width: 160px; }
+
+        .serial-info h2 { color: #2c3e50; font-size: 16px; margin-bottom: 4px; }
+
+        .serial-info p { color: #7f8c8d; font-size: 13px; }
+
+        .serial-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .serial-display {
+            font-size: 36px;
+            font-weight: 700;
+            color: #667eea;
+            min-width: 60px;
+            text-align: center;
+            line-height: 1;
+        }
+
+        .serial-btns { display: flex; flex-direction: column; gap: 4px; }
+
+        .serial-btns button {
+            width: 32px;
+            height: 28px;
+            background: #f0f4ff;
+            border: 1px solid #d0d8ff;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 700;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .serial-btns button:hover { background: #667eea; color: white; }
+
+        .serial-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .serial-input-wrap input {
+            width: 70px;
+            padding: 10px;
+            border: 2px solid #d0d8ff;
+            border-radius: 9px;
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            text-align: center;
+            outline: none;
+        }
+
+        .serial-input-wrap input:focus { border-color: #667eea; }
+
+        .serial-hint { font-size: 12px; color: #aaa; margin-top: 4px; }
+
+        /* ── Buttons ── */
+        button.btn {
             padding: 10px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
             border: none;
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: opacity 0.2s, transform 0.15s;
         }
+        button.btn:hover { opacity: 0.88; transform: translateY(-1px); }
+        button.btn:active { transform: translateY(0); }
+        .btn-primary  { background: linear-gradient(135deg,#667eea,#764ba2); color: white; }
+        .btn-success  { background: linear-gradient(135deg,#11998e,#38ef7d); color: white; }
+        .btn-danger   { background: #e74c3c; color: white; }
+        .btn-save     { background: linear-gradient(135deg,#f093fb,#f5576c); color: white; }
 
-        button:hover {
-            transform: translateY(-2px);
-        }
-
-        button.logout {
-            background: #e74c3c;
-        }
-
-        button.codes-btn {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
-
+        /* ── Submissions table ── */
         .container {
             background: white;
             border-radius: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
             padding: 30px;
             overflow-x: auto;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
+        .container-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        thead {
-            background: #f8f9fa;
+        .container-header h2 { color: #2c3e50; font-size: 16px; }
+
+        .stats-pill {
+            background: #f0f4ff;
+            color: #4a6fa5;
+            font-size: 13px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-weight: 600;
         }
+
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+
+        thead { background: #f8f9fa; }
 
         th {
-            padding: 15px;
+            padding: 13px 15px;
             text-align: left;
             font-weight: 600;
             color: #2c3e50;
+            font-size: 13px;
             border-bottom: 2px solid #e0e0e0;
         }
 
         td {
-            padding: 15px;
+            padding: 13px 15px;
             border-bottom: 1px solid #f0f0f0;
             color: #34495e;
+            font-size: 14px;
         }
 
-        tr:hover {
-            background: #f8f9fa;
-        }
+        tr:hover td { background: #fafbff; }
 
-        .email-cell {
-            font-weight: 500;
-            color: #667eea;
-        }
+        .email-cell { font-weight: 500; color: #667eea; }
 
-        .code-cell {
+        .codes-cell {
             font-family: 'Courier New', monospace;
-            background: #f8f9fa;
-            padding: 5px 10px;
-            border-radius: 5px;
-            display: inline-block;
+            font-size: 12px;
+            color: #555;
+            max-width: 260px;
+            word-break: break-all;
         }
 
-        .timestamp-cell {
-            color: #7f8c8d;
-            font-size: 13px;
-        }
+        .timestamp-cell { color: #7f8c8d; font-size: 13px; }
 
         .no-data {
             text-align: center;
             padding: 40px;
             color: #7f8c8d;
+            font-size: 15px;
         }
 
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
+        .loading { text-align: center; padding: 40px; color: #667eea; }
+
+        /* ── Toast ── */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: #2c3e50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: transform 0.3s ease;
+            z-index: 999;
+            white-space: nowrap;
         }
+        #toast.show { transform: translateX(-50%) translateY(0); }
+        #toast.success { background: #27ae60; }
+        #toast.error   { background: #e74c3c; }
 
-        @media (max-width: 768px) {
-            .header {
-                padding: 15px 20px;
-            }
-
-            h1 {
-                font-size: 20px;
-            }
-
-            .container {
-                padding: 20px 15px;
-            }
-
-            th, td {
-                padding: 10px;
-                font-size: 14px;
-            }
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            .header, .serial-card, .container { padding: 16px; }
+            h1 { font-size: 18px; }
+            .serial-display { font-size: 28px; }
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Admin Dashboard</h1>
-        <div class="header-actions">
-            <span class="stats" id="stats">Loading...</span>
-            <button onclick="loadSubmissions()">Refresh</button>
-            <button class="codes-btn" onclick="window.location.href='/admin/codes'">Manage Codes</button>
-            <button class="logout" onclick="logout()">Logout</button>
+
+<div id="toast"></div>
+
+<div class="header">
+    <h1>Admin Dashboard</h1>
+    <div class="header-actions">
+        <button class="btn btn-success" onclick="window.location.href='/admin/codes'">Manage Codes</button>
+        <button class="btn btn-danger" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<!-- Serial Number Setting -->
+<div class="serial-card">
+    <div class="serial-icon">🔢</div>
+    <div class="serial-info">
+        <h2>Codes Per Email</h2>
+        <p>Number of codes sent to each user who requests access</p>
+        <div class="serial-hint" id="serialHint">Loading…</div>
+    </div>
+    <div class="serial-control">
+        <div>
+            <div class="serial-input-wrap">
+                <div class="serial-btns">
+                    <button onclick="changeSerial(1)" title="Increase">▲</button>
+                    <button onclick="changeSerial(-1)" title="Decrease">▼</button>
+                </div>
+                <input type="number" id="serialInput" min="1" value="1" onchange="saveSerial()">
+            </div>
+        </div>
+        <button class="btn btn-save" id="saveSerialBtn" onclick="saveSerial()">Save</button>
+    </div>
+</div>
+
+<!-- Submissions Table -->
+<div class="container">
+    <div class="container-header">
+        <h2>Email Submissions</h2>
+        <div style="display:flex;gap:10px;align-items:center;">
+            <span class="stats-pill" id="stats">Loading…</span>
+            <button class="btn btn-primary" onclick="loadSubmissions()" style="padding:7px 14px;font-size:13px;">Refresh</button>
         </div>
     </div>
 
-    <div class="container">
-        <div id="loading" class="loading">Loading submissions...</div>
-        <div id="tableContainer" style="display: none;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Email</th>
-                        <th>Code</th>
-                        <th>Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody id="submissionsBody">
-                </tbody>
-            </table>
-        </div>
-        <div id="noData" class="no-data" style="display: none;">
-            No submissions yet. Users will appear here once they request access codes.
-        </div>
+    <div id="loading" class="loading">Loading submissions…</div>
+    <div id="tableContainer" style="display:none;">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Email</th>
+                    <th>Codes Sent</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody id="submissionsBody"></tbody>
+        </table>
     </div>
+    <div id="noData" class="no-data" style="display:none;">
+        No submissions yet. Users will appear here once they request access codes.
+    </div>
+</div>
 
-    <script>
-        async function loadSubmissions() {
-            const loading = document.getElementById('loading');
-            const tableContainer = document.getElementById('tableContainer');
-            const noData = document.getElementById('noData');
-            const submissionsBody = document.getElementById('submissionsBody');
-            const stats = document.getElementById('stats');
+<script>
+    // ── Serial number ─────────────────────────────────────────────────────────
+    let currentSerial = 1;
+    let maxCodes = 1;
 
-            loading.style.display = 'block';
-            tableContainer.style.display = 'none';
-            noData.style.display = 'none';
+    async function loadSerial() {
+        try {
+            const res  = await fetch('/api/settings/serial-count');
+            if (res.status === 401) { window.location.href = '/admin'; return; }
+            const data = await res.json();
+            currentSerial = data.serial_count;
+            document.getElementById('serialInput').value = currentSerial;
+            updateSerialHint();
+        } catch (e) { console.error(e); }
+    }
 
-            try {
-                const response = await fetch('/api/submissions');
-                
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        window.location.href = '/admin';
-                        return;
-                    }
-                    throw new Error('Failed to load submissions');
-                }
+    async function loadMaxCodes() {
+        try {
+            const res  = await fetch('/api/codes');
+            if (!res.ok) return;
+            const data = await res.json();
+            maxCodes = data.length;
+            updateSerialHint();
+        } catch (e) {}
+    }
 
-                const submissions = await response.json();
-                
-                loading.style.display = 'none';
+    function updateSerialHint() {
+        const n = parseInt(document.getElementById('serialInput').value) || currentSerial;
+        document.getElementById('serialHint').textContent =
+            `Currently sending codes 1 – ${n}  ·  ${maxCodes} total code${maxCodes !== 1 ? 's' : ''} in DB`;
+    }
 
-                if (submissions.length === 0) {
-                    noData.style.display = 'block';
-                    stats.textContent = 'Total: 0 submissions';
-                } else {
-                    tableContainer.style.display = 'block';
-                    submissionsBody.innerHTML = submissions.map((sub, index) => `
-                        <tr>
-                            <td>${index + 1}</td>
-                            <td class="email-cell">${escapeHtml(sub.email)}</td>
-                            <td><span class="code-cell">${escapeHtml(sub.code)}</span></td>
-                            <td class="timestamp-cell">${formatTimestamp(sub.timestamp)}</td>
-                        </tr>
-                    `).join('');
-                    stats.textContent = `Total: ${submissions.length} submission${submissions.length !== 1 ? 's' : ''}`;
-                }
-            } catch (error) {
-                loading.style.display = 'none';
-                noData.style.display = 'block';
-                noData.textContent = 'Error loading submissions. Please try again.';
-                stats.textContent = 'Error';
-            }
-        }
+    function changeSerial(delta) {
+        const input = document.getElementById('serialInput');
+        let val = parseInt(input.value) + delta;
+        if (val < 1) val = 1;
+        if (val > maxCodes && maxCodes > 0) val = maxCodes;
+        input.value = val;
+        updateSerialHint();
+    }
 
-        async function logout() {
-            try {
-                await fetch('/api/logout', { method: 'POST' });
-                window.location.href = '/';
-            } catch (error) {
-                alert('Logout failed. Please try again.');
-            }
-        }
+    async function saveSerial() {
+        const n   = parseInt(document.getElementById('serialInput').value);
+        const btn = document.getElementById('saveSerialBtn');
+        if (!n || n < 1) { toast('Must be at least 1', 'error'); return; }
 
-        function formatTimestamp(timestamp) {
-            const date = new Date(timestamp);
-            return date.toLocaleString('en-IN', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                timeZone: 'Asia/Kolkata'
+        btn.disabled = true;
+        btn.textContent = 'Saving…';
+
+        try {
+            const res  = await fetch('/api/settings/serial-count', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ serial_count: n })
             });
+            const data = await res.json();
+            if (!res.ok) { toast(data.error || 'Save failed', 'error'); return; }
+            currentSerial = n;
+            updateSerialHint();
+            toast(`Saved! Users will now receive ${n} code${n > 1 ? 's' : ''}`, 'success');
+        } catch (e) {
+            toast('Network error', 'error');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Save';
         }
+    }
 
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
+    // Update hint on manual input
+    document.getElementById('serialInput').addEventListener('input', updateSerialHint);
+
+    // ── Submissions ───────────────────────────────────────────────────────────
+    async function loadSubmissions() {
+        const loading  = document.getElementById('loading');
+        const tableContainer = document.getElementById('tableContainer');
+        const noData   = document.getElementById('noData');
+        const tbody    = document.getElementById('submissionsBody');
+        const stats    = document.getElementById('stats');
+
+        loading.style.display = 'block';
+        tableContainer.style.display = 'none';
+        noData.style.display = 'none';
+
+        try {
+            const res = await fetch('/api/submissions');
+            if (res.status === 401) { window.location.href = '/admin'; return; }
+            const submissions = await res.json();
+
+            loading.style.display = 'none';
+            stats.textContent = `${submissions.length} submission${submissions.length !== 1 ? 's' : ''}`;
+
+            if (submissions.length === 0) {
+                noData.style.display = 'block';
+            } else {
+                tableContainer.style.display = 'block';
+                tbody.innerHTML = submissions.map((s, i) => `
+                    <tr>
+                        <td style="color:#aaa;font-size:13px;">${i + 1}</td>
+                        <td class="email-cell">${esc(s.email)}</td>
+                        <td class="codes-cell">${esc(s.codes_sent || '—')}</td>
+                        <td class="timestamp-cell">${formatTs(s.timestamp)}</td>
+                    </tr>
+                `).join('');
+            }
+        } catch (e) {
+            loading.style.display = 'none';
+            noData.style.display = 'block';
+            noData.textContent = 'Error loading submissions. Please refresh.';
         }
+    }
 
-        // Load submissions on page load
-        loadSubmissions();
+    async function logout() {
+        await fetch('/api/logout', { method: 'POST' });
+        window.location.href = '/';
+    }
 
-        // Auto-refresh every 30 seconds
-        setInterval(loadSubmissions, 30000);
-    </script>
+    function formatTs(ts) {
+        return new Date(ts).toLocaleString('en-IN', {
+            year: 'numeric', month: 'short', day: 'numeric',
+            hour: '2-digit', minute: '2-digit', timeZone: 'Asia/Kolkata'
+        });
+    }
+
+    function esc(str) {
+        if (!str) return '';
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+    }
+
+    let toastTimer;
+    function toast(msg, type = 'success') {
+        const el = document.getElementById('toast');
+        el.textContent = msg;
+        el.className = `show ${type}`;
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { el.className = ''; }, 2800);
+    }
+
+    // Init
+    loadSerial();
+    loadMaxCodes();
+    loadSubmissions();
+    setInterval(loadSubmissions, 30000);
+</script>
 </body>
 </html>

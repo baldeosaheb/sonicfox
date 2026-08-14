@@ -14,7 +14,6 @@
             padding: 20px;
         }
 
-        /* ── Header ── */
         .header {
             background: white;
             padding: 20px 30px;
@@ -29,7 +28,6 @@
         }
 
         .header h1 { color: #2c3e50; font-size: 22px; }
-
         .header-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
 
         .stats-pill {
@@ -41,7 +39,6 @@
             font-weight: 600;
         }
 
-        /* ── Buttons ── */
         .btn {
             padding: 9px 18px;
             border: none;
@@ -61,7 +58,6 @@
         .btn-sm        { padding: 6px 12px; font-size: 13px; }
         .btn:disabled  { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        /* ── Add Code Form ── */
         .add-section {
             background: white;
             border-radius: 15px;
@@ -70,14 +66,7 @@
             margin-bottom: 24px;
         }
 
-        .add-section h2 {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .add-section h2 { font-size: 16px; color: #2c3e50; margin-bottom: 16px; }
 
         .form-row {
             display: flex;
@@ -87,7 +76,7 @@
 
         .form-row input {
             flex: 1;
-            min-width: 180px;
+            min-width: 160px;
             padding: 11px 14px;
             border: 2px solid #e0e0e0;
             border-radius: 9px;
@@ -95,10 +84,10 @@
             outline: none;
             transition: border-color 0.2s;
         }
-
         .form-row input:focus { border-color: #667eea; }
 
-        /* ── Table ── */
+        .form-row input.num-input { max-width: 90px; text-align: center; font-weight: 700; }
+
         .table-section {
             background: white;
             border-radius: 15px;
@@ -107,11 +96,7 @@
             overflow-x: auto;
         }
 
-        .table-section h2 {
-            font-size: 16px;
-            color: #2c3e50;
-            margin-bottom: 16px;
-        }
+        .table-section h2 { font-size: 16px; color: #2c3e50; margin-bottom: 16px; }
 
         .filter-row {
             display: flex;
@@ -132,26 +117,8 @@
         }
         .filter-row input:focus { border-color: #667eea; }
 
-        .filter-label {
-            font-size: 13px;
-            font-weight: 600;
-            color: #7f8c8d;
-        }
-
-        select.filter-select {
-            padding: 9px 14px;
-            border: 2px solid #e0e0e0;
-            border-radius: 9px;
-            font-size: 14px;
-            outline: none;
-            background: white;
-            cursor: pointer;
-        }
-
-        table { width: 100%; border-collapse: collapse; min-width: 560px; }
-
+        table { width: 100%; border-collapse: collapse; min-width: 520px; }
         thead { background: #f8f9fa; }
-
         th {
             padding: 13px 14px;
             text-align: left;
@@ -160,7 +127,6 @@
             font-size: 13px;
             border-bottom: 2px solid #e8e8e8;
         }
-
         td {
             padding: 12px 14px;
             border-bottom: 1px solid #f2f2f2;
@@ -168,18 +134,19 @@
             color: #34495e;
             vertical-align: middle;
         }
-
         tr:hover td { background: #fafbff; }
 
-        .badge {
+        .order-badge {
             display: inline-block;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-size: 12px;
+            background: #f0f4ff;
+            color: #667eea;
             font-weight: 700;
+            font-size: 13px;
+            padding: 3px 10px;
+            border-radius: 8px;
+            min-width: 32px;
+            text-align: center;
         }
-        .badge-available { background: #d4f8e8; color: #1a7a4a; }
-        .badge-used      { background: #fde8e8; color: #a03030; }
 
         .code-text {
             font-family: 'Courier New', monospace;
@@ -192,7 +159,6 @@
 
         .actions { display: flex; gap: 6px; }
 
-        /* ── Inline Edit Row ── */
         .edit-input {
             width: 100%;
             padding: 6px 10px;
@@ -200,21 +166,10 @@
             border-radius: 7px;
             font-size: 13px;
             outline: none;
-            font-family: inherit;
         }
-
         .edit-input.mono { font-family: 'Courier New', monospace; }
+        .edit-input.num  { max-width: 70px; text-align: center; font-weight: 700; }
 
-        select.edit-select {
-            padding: 6px 10px;
-            border: 2px solid #667eea;
-            border-radius: 7px;
-            font-size: 13px;
-            outline: none;
-            background: white;
-        }
-
-        /* ── States ── */
         .state-msg {
             text-align: center;
             padding: 40px;
@@ -222,7 +177,6 @@
             font-size: 15px;
         }
 
-        /* ── Toast ── */
         #toast {
             position: fixed;
             bottom: 24px;
@@ -242,7 +196,6 @@
         #toast.success { background: #27ae60; }
         #toast.error   { background: #e74c3c; }
 
-        /* ── Confirm overlay ── */
         .overlay {
             display: none;
             position: fixed;
@@ -268,17 +221,14 @@
 
         @media (max-width: 600px) {
             body { padding: 12px; }
-            .header { padding: 15px; }
-            .add-section, .table-section { padding: 16px; }
+            .header, .add-section, .table-section { padding: 16px; }
         }
     </style>
 </head>
 <body>
 
-<!-- Toast -->
 <div id="toast"></div>
 
-<!-- Delete confirm overlay -->
 <div class="overlay" id="confirmOverlay">
     <div class="confirm-box">
         <h3>Delete Code?</h3>
@@ -290,7 +240,6 @@
     </div>
 </div>
 
-<!-- Header -->
 <div class="header">
     <h1>Manage Codes</h1>
     <div class="header-actions">
@@ -300,29 +249,22 @@
     </div>
 </div>
 
-<!-- Add new code -->
 <div class="add-section">
     <h2>➕ Add New Code</h2>
     <div class="form-row">
-        <input type="text" id="newCode"  placeholder="Code  e.g. DEMO-2026-011" />
-        <input type="text" id="newTitle" placeholder="Title  e.g. Beta Tester Slot 11" />
+        <input type="number" id="newOrder" class="num-input" placeholder="#" min="1" title="Serial order (position in list)">
+        <input type="text"   id="newTitle" placeholder="Title  e.g. Episode 11">
+        <input type="text"   id="newCode"  placeholder="Code  e.g. DEMO-2026-011">
         <button class="btn btn-success" id="addBtn" onclick="addCode()">Add Code</button>
     </div>
     <div id="addError" style="margin-top:10px;color:#e74c3c;font-size:13px;display:none;"></div>
 </div>
 
-<!-- Codes table -->
 <div class="table-section">
-    <h2>All Codes</h2>
+    <h2>All Codes <span style="font-size:13px;color:#aaa;font-weight:400;">(ordered by serial position — this is the order users receive them)</span></h2>
 
     <div class="filter-row">
-        <input type="text" id="searchInput" placeholder="Search by code or title…" oninput="renderTable()">
-        <span class="filter-label">Status:</span>
-        <select class="filter-select" id="statusFilter" onchange="renderTable()">
-            <option value="all">All</option>
-            <option value="0">Available</option>
-            <option value="1">Used</option>
-        </select>
+        <input type="text" id="searchInput" placeholder="Search by title or code…" oninput="renderTable()">
     </div>
 
     <div id="tableState" class="state-msg">Loading…</div>
@@ -330,10 +272,9 @@
         <table>
             <thead>
                 <tr>
-                    <th>#</th>
+                    <th>Position</th>
                     <th>Title</th>
                     <th>Code</th>
-                    <th>Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -343,42 +284,35 @@
 </div>
 
 <script>
-    let allCodes = [];
+    let allCodes  = [];
     let editingId = null;
-    let deleteTargetId = null;
 
-    // ── Load ──────────────────────────────────────────────────────────────────
     async function loadCodes() {
         try {
             const res = await fetch('/api/codes');
             if (res.status === 401) { window.location.href = '/admin'; return; }
             allCodes = await res.json();
-            updateStats();
+            document.getElementById('statsPill').textContent = `${allCodes.length} code${allCodes.length !== 1 ? 's' : ''}`;
+            // Pre-fill next order number
+            if (allCodes.length > 0) {
+                const max = Math.max(...allCodes.map(c => c.serial_order || 0));
+                document.getElementById('newOrder').value = max + 1;
+            } else {
+                document.getElementById('newOrder').value = 1;
+            }
             renderTable();
         } catch (e) {
             showState('Failed to load codes. Please refresh.');
         }
     }
 
-    function updateStats() {
-        const total = allCodes.length;
-        const available = allCodes.filter(c => !c.used).length;
-        document.getElementById('statsPill').textContent =
-            `${total} total · ${available} available · ${total - available} used`;
-    }
-
-    // ── Render ────────────────────────────────────────────────────────────────
     function renderTable() {
         const search = document.getElementById('searchInput').value.toLowerCase();
-        const status = document.getElementById('statusFilter').value;
-
-        let filtered = allCodes.filter(c => {
-            const matchSearch = !search ||
-                c.code.toLowerCase().includes(search) ||
-                (c.title || '').toLowerCase().includes(search);
-            const matchStatus = status === 'all' || String(c.used) === status;
-            return matchSearch && matchStatus;
-        });
+        let filtered = allCodes.filter(c =>
+            !search ||
+            (c.code  || '').toLowerCase().includes(search) ||
+            (c.title || '').toLowerCase().includes(search)
+        );
 
         const tbody = document.getElementById('codesBody');
         const wrap  = document.getElementById('tableWrap');
@@ -386,33 +320,27 @@
 
         if (filtered.length === 0) {
             wrap.style.display = 'none';
-            showState(allCodes.length === 0 ? 'No codes yet. Add one above.' : 'No codes match your filter.');
+            showState(allCodes.length === 0 ? 'No codes yet. Add one above.' : 'No codes match your search.');
             return;
         }
 
         state.style.display = 'none';
-        wrap.style.display = 'block';
-
-        tbody.innerHTML = filtered.map((c, i) => {
-            if (editingId === c.id) return editRow(c, i);
-            return viewRow(c, i);
-        }).join('');
+        wrap.style.display  = 'block';
+        tbody.innerHTML = filtered.map(c =>
+            editingId === c.id ? editRow(c) : viewRow(c)
+        ).join('');
     }
 
-    function viewRow(c, i) {
-        const badge = c.used
-            ? `<span class="badge badge-used">Used</span>`
-            : `<span class="badge badge-available">Available</span>`;
+    function viewRow(c) {
         return `
         <tr id="row-${c.id}">
-            <td style="color:#aaa;font-size:13px;">${i + 1}</td>
-            <td>${esc(c.title) || '<span style="color:#bbb;font-style:italic;">—</span>'}</td>
+            <td><span class="order-badge">${c.serial_order}</span></td>
+            <td>${esc(c.title) || '<span style="color:#ccc;font-style:italic;">—</span>'}</td>
             <td><span class="code-text">${esc(c.code)}</span></td>
-            <td>${badge}</td>
             <td>
                 <div class="actions">
                     <button class="btn btn-primary btn-sm" onclick="startEdit(${c.id})">Edit</button>
-                    <button class="btn btn-danger btn-sm" onclick="confirmDelete(${c.id}, '${esc(c.code)}')">Delete</button>
+                    <button class="btn btn-danger btn-sm"  onclick="confirmDelete(${c.id}, '${esc(c.code)}')">Delete</button>
                 </div>
             </td>
         </tr>`;
@@ -421,18 +349,12 @@
     function editRow(c) {
         return `
         <tr id="row-${c.id}" style="background:#f0f4ff;">
-            <td style="color:#aaa;font-size:13px;">${c.id}</td>
-            <td><input class="edit-input" id="edit-title-${c.id}" value="${esc(c.title)}" placeholder="Title"></td>
-            <td><input class="edit-input mono" id="edit-code-${c.id}"  value="${esc(c.code)}"  placeholder="Code"></td>
-            <td>
-                <select class="edit-select" id="edit-used-${c.id}">
-                    <option value="0" ${!c.used ? 'selected' : ''}>Available</option>
-                    <option value="1" ${c.used  ? 'selected' : ''}>Used</option>
-                </select>
-            </td>
+            <td><input class="edit-input num" id="edit-order-${c.id}" type="number" value="${c.serial_order}" min="1"></td>
+            <td><input class="edit-input"     id="edit-title-${c.id}" value="${esc(c.title)}"  placeholder="Title"></td>
+            <td><input class="edit-input mono" id="edit-code-${c.id}" value="${esc(c.code)}"   placeholder="Code"></td>
             <td>
                 <div class="actions">
-                    <button class="btn btn-success btn-sm" onclick="saveEdit(${c.id})">Save</button>
+                    <button class="btn btn-success  btn-sm" onclick="saveEdit(${c.id})">Save</button>
                     <button class="btn btn-secondary btn-sm" onclick="cancelEdit()">Cancel</button>
                 </div>
             </td>
@@ -440,15 +362,16 @@
     }
 
     function showState(msg) {
-        document.getElementById('tableState').textContent = msg;
+        document.getElementById('tableState').textContent  = msg;
         document.getElementById('tableState').style.display = 'block';
-        document.getElementById('tableWrap').style.display = 'none';
+        document.getElementById('tableWrap').style.display  = 'none';
     }
 
     // ── Add ───────────────────────────────────────────────────────────────────
     async function addCode() {
-        const code  = document.getElementById('newCode').value.trim();
+        const order = parseInt(document.getElementById('newOrder').value);
         const title = document.getElementById('newTitle').value.trim();
+        const code  = document.getElementById('newCode').value.trim();
         const errEl = document.getElementById('addError');
         const btn   = document.getElementById('addBtn');
 
@@ -461,13 +384,13 @@
             const res  = await fetch('/api/codes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, title })
+                body: JSON.stringify({ code, title, serial_order: order || undefined })
             });
             const data = await res.json();
             if (!res.ok) { showAddError(data.error); return; }
 
-            document.getElementById('newCode').value  = '';
             document.getElementById('newTitle').value = '';
+            document.getElementById('newCode').value  = '';
             toast('Code added!', 'success');
             await loadCodes();
         } catch (e) {
@@ -488,54 +411,45 @@
     function startEdit(id) {
         editingId = id;
         renderTable();
-        // Focus title field
         setTimeout(() => {
             const el = document.getElementById(`edit-title-${id}`);
             if (el) el.focus();
         }, 50);
     }
 
-    function cancelEdit() {
-        editingId = null;
-        renderTable();
-    }
+    function cancelEdit() { editingId = null; renderTable(); }
 
     async function saveEdit(id) {
         const code  = document.getElementById(`edit-code-${id}`).value.trim();
         const title = document.getElementById(`edit-title-${id}`).value.trim();
-        const used  = document.getElementById(`edit-used-${id}`).value === '1';
+        const order = parseInt(document.getElementById(`edit-order-${id}`).value);
 
-        if (!code) { toast('Code cannot be empty', 'error'); return; }
+        if (!code)  { toast('Code cannot be empty', 'error'); return; }
+        if (!order) { toast('Position must be a number', 'error'); return; }
 
         try {
             const res  = await fetch(`/api/codes/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, title, used })
+                body: JSON.stringify({ code, title, serial_order: order })
             });
             const data = await res.json();
             if (!res.ok) { toast(data.error || 'Update failed', 'error'); return; }
-
             editingId = null;
             toast('Code updated!', 'success');
             await loadCodes();
-        } catch (e) {
-            toast('Network error', 'error');
-        }
+        } catch (e) { toast('Network error', 'error'); }
     }
 
     // ── Delete ────────────────────────────────────────────────────────────────
     function confirmDelete(id, code) {
-        deleteTargetId = id;
-        document.getElementById('confirmMsg').textContent =
-            `Delete code "${code}"? This cannot be undone.`;
+        document.getElementById('confirmMsg').textContent = `Delete code "${code}"? This cannot be undone.`;
         document.getElementById('confirmOverlay').classList.add('show');
         document.getElementById('confirmOkBtn').onclick = () => doDelete(id);
     }
 
     function closeConfirm() {
         document.getElementById('confirmOverlay').classList.remove('show');
-        deleteTargetId = null;
     }
 
     async function doDelete(id) {
@@ -546,18 +460,14 @@
             if (!res.ok) { toast(data.error || 'Delete failed', 'error'); return; }
             toast('Code deleted', 'success');
             await loadCodes();
-        } catch (e) {
-            toast('Network error', 'error');
-        }
+        } catch (e) { toast('Network error', 'error'); }
     }
 
-    // ── Logout ────────────────────────────────────────────────────────────────
     async function doLogout() {
         await fetch('/api/logout', { method: 'POST' });
         window.location.href = '/';
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
     function esc(str) {
         if (!str) return '';
         const d = document.createElement('div');
@@ -574,11 +484,8 @@
         toastTimer = setTimeout(() => { el.className = ''; }, 2800);
     }
 
-    // Enter key on add inputs
     document.getElementById('newCode').addEventListener('keydown',  e => { if (e.key === 'Enter') addCode(); });
     document.getElementById('newTitle').addEventListener('keydown', e => { if (e.key === 'Enter') addCode(); });
-
-    // Close confirm on overlay click
     document.getElementById('confirmOverlay').addEventListener('click', e => {
         if (e.target === e.currentTarget) closeConfirm();
     });
