@@ -208,7 +208,7 @@ app.post('/api/get-code', (req, res) => {
           subject: 'Your Access Code(s) - Hidden Future Entertainment',
           html: `
             <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:30px 20px;">
-              <h2 style="color:#2c3e50;margin-bottom:8px;">Welcome to the Hidden Future of Entertainment!</h2>
+              <h2 style="color:#2c3e50;margin-bottom:8px;">Welcome to the Future of Entertainment!</h2>
               <p style="color:#7f8c8d;margin-bottom:24px;">Thank you for your interest. Here ${codes.length === 1 ? 'is your access code' : 'are your access codes'}:</p>
               <table style="width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid #eee;">
                 <thead>
@@ -220,7 +220,7 @@ app.post('/api/get-code', (req, res) => {
                 </thead>
                 <tbody>${codeListHtml}</tbody>
               </table>
-              <p style="color:#95a5a6;font-size:13px;margin-top:24px;">This is a trial version with restricted features. Use these codes to access the product.</p>
+              <p style="color:#95a5a6;font-size:13px;margin-top:24px;">I will be straightforward with you. Since the video is not owned by me, I can't sell it to you directly. Enter email and code will be sent to you to download the content.</p>
               <p style="color:#95a5a6;font-size:13px;">Best regards,<br><strong style="color:#2c3e50;">Hidden Future Entertainment Team</strong></p>
             </div>
           `
