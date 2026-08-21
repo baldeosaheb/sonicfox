@@ -40,6 +40,8 @@ db.serialize(() => {
     CREATE TABLE IF NOT EXISTS submissions (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT NOT NULL,
+      codes_sent TEXT DEFAULT '',
+      codes_count INTEGER DEFAULT 0,
       timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
@@ -67,8 +69,31 @@ db.serialize(() => {
   db.run(`ALTER TABLE codes ADD COLUMN serial_order INTEGER`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN link_url TEXT DEFAULT ''`, () => {});
+  // Safe migrations — ignore errors if columns already exist
   db.run(`ALTER TABLE submissions ADD COLUMN codes_sent TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE submissions ADD COLUMN codes_count INTEGER DEFAULT 0`, () => {});
+  // Drop old NOT NULL constraint by recreating table if `code` column exists
+  db.all(`PRAGMA table_info(submissions)`, [], (err, cols) => {
+    if (err || !cols) return;
+    const hasOldCode = cols.some(c => c.name === 'code');
+    if (hasOldCode) {
+      db.serialize(() => {
+        db.run(`CREATE TABLE IF NOT EXISTS submissions_new (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          email TEXT NOT NULL,
+          codes_sent TEXT DEFAULT '',
+          codes_count INTEGER DEFAULT 0,
+          timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+        db.run(`INSERT INTO submissions_new (id, email, codes_sent, codes_count, timestamp)
+          SELECT id, email, COALESCE(codes_sent, code, ''), COALESCE(codes_count, 0), timestamp
+          FROM submissions`);
+        db.run(`DROP TABLE submissions`);
+        db.run(`ALTER TABLE submissions_new RENAME TO submissions`);
+        console.log('Migrated submissions table — removed old code column');
+      });
+    }
+  });
 
   // Backfill serial_order for existing rows that don't have it
   db.run(`UPDATE codes SET serial_order = id WHERE serial_order IS NULL OR serial_order = 0`);
@@ -86,17 +111,19 @@ app.use(session({
 }));
 
 // Configure nodemailer with Zoho Mail
+// Try port 587 (STARTTLS) first — port 465 (SSL) is often blocked on cloud hosts
 const transporter = nodemailer.createTransport({
   host: 'smtp.zoho.in',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,          // STARTTLS on port 587
+  requireTLS: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD
   },
-  connectionTimeout: 10000,  // 10s to connect
-  greetingTimeout: 10000,    // 10s for greeting
-  socketTimeout: 15000       // 15s socket idle
+  connectionTimeout: 10000,
+  greetingTimeout: 10000,
+  socketTimeout: 15000
 });
 
 // ── Routes ───────────────────────────────────────────────────────────────────
@@ -271,19 +298,20 @@ function sendCodes(email, count, res) {
         const emailTimeout = setTimeout(() => {
           if (!responded) {
             responded = true;
-            console.error('Email timeout — SMTP took too long');
-            res.json({ success: true, message: 'Code saved! Email delivery may be delayed — check your spam folder.' });
+            console.error(`Email timeout after 15s — SMTP host: smtp.zoho.in:587 — to: ${email}`);
+            res.json({ success: true, message: 'Link saved! Email delivery may be delayed — please check your spam folder.' });
           }
         }, 15000);
 
         transporter.sendMail(mailOptions, (error) => {
           clearTimeout(emailTimeout);
-          if (responded) return; // timeout already responded
+          if (responded) return;
           responded = true;
           if (error) {
-            console.error('Email error:', error.message);
-            return res.json({ success: true, message: 'Code saved! Email delivery may be delayed — check your spam folder.' });
+            console.error(`Email send error to ${email}:`, error.message);
+            return res.json({ success: true, message: 'Link saved! Email delivery may be delayed — please check your spam folder.' });
           }
+          console.log(`Email sent to ${email} — ${codes.length} link(s)`);
           res.json({ success: true, message: `${codes.length} link${codes.length > 1 ? 's' : ''} sent to your email!` });
         });
       }
