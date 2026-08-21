@@ -30,6 +30,11 @@ db.serialize(() => {
 
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('serial_count', '1')`);
 
+  db.run(`CREATE TABLE IF NOT EXISTS email_overrides (
+    email TEXT PRIMARY KEY,
+    serial_count INTEGER NOT NULL
+  )`);
+
   db.run(`ALTER TABLE codes ADD COLUMN serial_order INTEGER`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE submissions ADD COLUMN codes_sent TEXT DEFAULT ''`, () => {});

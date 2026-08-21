@@ -54,16 +54,22 @@ db.serialize(() => {
   // Default serial count = 1
   db.run(`INSERT OR IGNORE INTO settings (key, value) VALUES ('serial_count', '1')`);
 
+  // Per-email override table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS email_overrides (
+      email TEXT PRIMARY KEY,
+      serial_count INTEGER NOT NULL
+    )
+  `);
+
   // Migrations for older installs
   db.run(`ALTER TABLE codes ADD COLUMN serial_order INTEGER`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE submissions ADD COLUMN codes_sent TEXT DEFAULT ''`, () => {});
+  db.run(`ALTER TABLE submissions ADD COLUMN codes_count INTEGER DEFAULT 0`, () => {});
 
   // Backfill serial_order for existing rows that don't have it
-  db.run(`
-    UPDATE codes SET serial_order = id
-    WHERE serial_order IS NULL OR serial_order = 0
-  `);
+  db.run(`UPDATE codes SET serial_order = id WHERE serial_order IS NULL OR serial_order = 0`);
 });
 
 // Middleware
@@ -108,6 +114,14 @@ app.get('/admin', (req, res) => {
 app.get('/admin/codes', (req, res) => {
   if (req.session.loggedIn) {
     res.sendFile(path.join(__dirname, 'public', 'codes.html'));
+  } else {
+    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+  }
+});
+
+app.get('/admin/users', (req, res) => {
+  if (req.session.loggedIn) {
+    res.sendFile(path.join(__dirname, 'public', 'users.html'));
   } else {
     res.sendFile(path.join(__dirname, 'public', 'login.html'));
   }
@@ -178,11 +192,24 @@ app.post('/api/get-code', (req, res) => {
     return res.status(400).json({ error: 'Invalid email address' });
   }
 
-  // Read serial_count setting
-  db.get(`SELECT value FROM settings WHERE key = 'serial_count'`, [], (err, row) => {
+  // Check for per-email override first, then fall back to global setting
+  db.get(`SELECT serial_count FROM email_overrides WHERE email = ?`, [email.toLowerCase()], (err, overrideRow) => {
     if (err) return res.status(500).json({ error: 'Database error' });
-    const count = parseInt(row ? row.value : 1);
 
+    if (overrideRow) {
+      // Use per-email override
+      sendCodes(email, overrideRow.serial_count, res);
+    } else {
+      // Use global default
+      db.get(`SELECT value FROM settings WHERE key = 'serial_count'`, [], (err, row) => {
+        if (err) return res.status(500).json({ error: 'Database error' });
+        sendCodes(email, parseInt(row ? row.value : 1), res);
+      });
+    }
+  });
+});
+
+function sendCodes(email, count, res) {
     // Fetch the first N codes by serial_order
     db.all(
       `SELECT * FROM codes ORDER BY serial_order ASC LIMIT ?`,
@@ -193,11 +220,11 @@ app.post('/api/get-code', (req, res) => {
           return res.status(500).json({ error: 'No codes available. Please contact support.' });
         }
 
-        // Save submission (store comma-separated codes sent)
+        // Save submission with count
         const codesSent = codes.map(c => c.code).join(', ');
         db.run(
-          'INSERT INTO submissions (email, codes_sent) VALUES (?, ?)',
-          [email, codesSent],
+          'INSERT INTO submissions (email, codes_sent, codes_count) VALUES (?, ?, ?)',
+          [email, codesSent, codes.length],
           (err) => { if (err) console.error('Submission save error:', err); }
         );
 
@@ -256,6 +283,54 @@ app.post('/api/get-code', (req, res) => {
         });
       }
     );
+}
+
+// ── Users / Email Overrides (admin only) ─────────────────────────────────────
+
+// GET all unique emails with their submission count, last seen, and override
+app.get('/api/users', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+  db.all(`
+    SELECT
+      s.email,
+      COUNT(s.id)        AS submission_count,
+      MAX(s.timestamp)   AS last_seen,
+      GROUP_CONCAT(s.codes_count) AS counts_history,
+      o.serial_count     AS override
+    FROM submissions s
+    LEFT JOIN email_overrides o ON LOWER(o.email) = LOWER(s.email)
+    GROUP BY LOWER(s.email)
+    ORDER BY last_seen DESC
+  `, [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(rows);
+  });
+});
+
+// PUT set/update per-email override
+app.put('/api/users/override', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+  const { email, serial_count } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email required' });
+  const n = parseInt(serial_count);
+  if (!n || n < 1) return res.status(400).json({ error: 'Must be at least 1' });
+
+  db.run(
+    `INSERT OR REPLACE INTO email_overrides (email, serial_count) VALUES (?, ?)`,
+    [email.toLowerCase(), n],
+    (err) => {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      res.json({ success: true });
+    }
+  );
+});
+
+// DELETE per-email override (revert to global)
+app.delete('/api/users/override/:email', (req, res) => {
+  if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
+  db.run(`DELETE FROM email_overrides WHERE LOWER(email) = LOWER(?)`, [req.params.email], (err) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json({ success: true });
   });
 });
 
