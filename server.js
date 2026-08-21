@@ -4,7 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 const sqlite3 = require('sqlite3').verbose();
-const nodemailer = require('nodemailer');
+const axios = require('axios');
 const path = require('path');
 
 const app = express();
@@ -110,21 +110,27 @@ app.use(session({
   cookie: { maxAge: 3600000 }
 }));
 
-// Configure nodemailer with Zoho Mail
-// Try port 587 (STARTTLS) first — port 465 (SSL) is often blocked on cloud hosts
-const transporter = nodemailer.createTransport({
-  host: 'smtp.zoho.in',
-  port: 587,
-  secure: false,          // STARTTLS on port 587
-  requireTLS: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS || process.env.EMAIL_PASSWORD
-  },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 15000
-});
+// Send email via Brevo HTTP API (works on all cloud hosts — no SMTP ports needed)
+async function sendEmail({ to, subject, html, text }) {
+  const response = await axios.post(
+    'https://api.brevo.com/v3/smtp/email',
+    {
+      sender: { name: 'Hidden Future Entertainment', email: process.env.EMAIL_USER },
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+      textContent: text
+    },
+    {
+      headers: {
+        'api-key': process.env.BREVO_API_KEY,
+        'Content-Type': 'application/json'
+      },
+      timeout: 15000
+    }
+  );
+  return response.data;
+}
 
 // ── Routes ───────────────────────────────────────────────────────────────────
 
@@ -337,27 +343,21 @@ function sendCodes(email, count, res) {
 </html>`
         };
 
-        // Set a 15s timeout so the request never hangs if SMTP is slow/blocked
-        let responded = false;
-        const emailTimeout = setTimeout(() => {
-          if (!responded) {
-            responded = true;
-            console.error(`Email timeout after 15s — SMTP host: smtp.zoho.in:587 — to: ${email}`);
+        // Send via Brevo HTTP API
+        sendEmail({
+          to: email,
+          subject: mailOptions.subject,
+          html: mailOptions.html,
+          text: mailOptions.text
+        })
+          .then(() => {
+            console.log(`Email sent to ${email} — ${codes.length} link(s)`);
+            res.json({ success: true, message: `${codes.length} link${codes.length > 1 ? 's' : ''} sent to your email!` });
+          })
+          .catch((error) => {
+            console.error(`Email send error to ${email}:`, error.response ? JSON.stringify(error.response.data) : error.message);
             res.json({ success: true, message: 'Link saved! Email delivery may be delayed — please check your spam folder.' });
-          }
-        }, 15000);
-
-        transporter.sendMail(mailOptions, (error) => {
-          clearTimeout(emailTimeout);
-          if (responded) return;
-          responded = true;
-          if (error) {
-            console.error(`Email send error to ${email}:`, error.message);
-            return res.json({ success: true, message: 'Link saved! Email delivery may be delayed — please check your spam folder.' });
-          }
-          console.log(`Email sent to ${email} — ${codes.length} link(s)`);
-          res.json({ success: true, message: `${codes.length} link${codes.length > 1 ? 's' : ''} sent to your email!` });
-        });
+          });
       }
     );
 }
