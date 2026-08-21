@@ -269,28 +269,72 @@ function sendCodes(email, count, res) {
           </tr>`;
         }).join('');
 
+        // Plain text version reduces spam score significantly
+        const plainText = codes.map((c, i) =>
+          `${i + 1}. ${c.title || 'Episode ' + (i+1)}\n   ${c.link_url || '(link coming soon)'}`
+        ).join('\n\n');
+
         const mailOptions = {
-          from: process.env.EMAIL_USER,
+          from: `Hidden Future Entertainment <${process.env.EMAIL_USER}>`,
           to: email,
-          subject: 'Your Access Link(s) - Hidden Future Entertainment',
-          html: `
-            <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:30px 20px;">
-              <h2 style="color:#2c3e50;margin-bottom:8px;">Welcome to the Hidden Future of Entertainment!</h2>
-              <p style="color:#7f8c8d;margin-bottom:24px;">Thank you for your interest. Here ${codes.length === 1 ? 'is your access link' : 'are your access links'}:</p>
-              <table style="width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid #eee;">
-                <thead>
-                  <tr style="background:#f0f4ff;">
-                    <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">#</th>
-                    <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">TITLE</th>
-                    <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">LINK</th>
-                  </tr>
-                </thead>
-                <tbody>${linkListHtml}</tbody>
-              </table>
-              <p style="color:#95a5a6;font-size:13px;margin-top:24px;">Click the link(s) above to access the content. These links are shared exclusively with you.</p>
-              <p style="color:#95a5a6;font-size:13px;">Best regards,<br><strong style="color:#2c3e50;">Hidden Future Entertainment Team</strong></p>
-            </div>
-          `
+          subject: `Your content access — Hidden Future Entertainment`,
+          text: `Hi,\n\nThank you for your interest in Hidden Future Entertainment.\n\nHere ${codes.length === 1 ? 'is your access link' : 'are your access links'}:\n\n${plainText}\n\nIf you did not request this, please ignore this email.\n\nBest regards,\nHidden Future Entertainment`,
+          html: `<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:30px 0;">
+    <tr><td align="center">
+      <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;border:1px solid #e0e0e0;">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:#1a1a2e;padding:28px 36px;">
+            <p style="margin:0;font-size:18px;font-weight:bold;color:#ffffff;letter-spacing:0.5px;">Hidden Future Entertainment</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px 36px;">
+            <p style="margin:0 0 8px 0;font-size:16px;font-weight:bold;color:#1a1a2e;">Hi there,</p>
+            <p style="margin:0 0 24px 0;font-size:14px;color:#555555;line-height:1.6;">
+              Thank you for your interest. Here ${codes.length === 1 ? 'is your access link' : 'are your access links'} for the content you requested:
+            </p>
+
+            <!-- Links table -->
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e8e8;border-radius:6px;overflow:hidden;margin-bottom:24px;">
+              <tr style="background:#f8f8f8;">
+                <td style="padding:10px 16px;font-size:11px;font-weight:bold;color:#888888;text-transform:uppercase;width:32px;">#</td>
+                <td style="padding:10px 16px;font-size:11px;font-weight:bold;color:#888888;text-transform:uppercase;">Title</td>
+                <td style="padding:10px 16px;font-size:11px;font-weight:bold;color:#888888;text-transform:uppercase;">Link</td>
+              </tr>
+              ${linkListHtml}
+            </table>
+
+            <p style="margin:0 0 6px 0;font-size:13px;color:#777777;line-height:1.6;">
+              Click the link to access the content. This was sent exclusively to you.
+            </p>
+            <p style="margin:0;font-size:13px;color:#777777;line-height:1.6;">
+              If you did not request this email, you can safely ignore it.
+            </p>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#f8f8f8;padding:20px 36px;border-top:1px solid #e8e8e8;">
+            <p style="margin:0;font-size:12px;color:#aaaaaa;line-height:1.6;">
+              Hidden Future Entertainment &nbsp;|&nbsp; This is a transactional email sent because you submitted your address on our website.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
         };
 
         // Set a 15s timeout so the request never hangs if SMTP is slow/blocked
