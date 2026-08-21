@@ -31,7 +31,8 @@ db.serialize(() => {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       serial_order INTEGER UNIQUE NOT NULL,
       code TEXT UNIQUE NOT NULL,
-      title TEXT DEFAULT ''
+      title TEXT DEFAULT '',
+      link_url TEXT DEFAULT ''
     )
   `);
 
@@ -65,6 +66,7 @@ db.serialize(() => {
   // Migrations for older installs
   db.run(`ALTER TABLE codes ADD COLUMN serial_order INTEGER`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, () => {});
+  db.run(`ALTER TABLE codes ADD COLUMN link_url TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE submissions ADD COLUMN codes_sent TEXT DEFAULT ''`, () => {});
   db.run(`ALTER TABLE submissions ADD COLUMN codes_count INTEGER DEFAULT 0`, () => {});
 
@@ -228,34 +230,37 @@ function sendCodes(email, count, res) {
           (err) => { if (err) console.error('Submission save error:', err); }
         );
 
-        // Build email HTML list
-        const codeListHtml = codes.map((c, i) =>
-          `<tr>
-            <td style="padding:10px 16px;border-bottom:1px solid #eee;color:#888;font-size:13px;">${i + 1}</td>
-            <td style="padding:10px 16px;border-bottom:1px solid #eee;font-weight:600;color:#2c3e50;">${c.title || ''}</td>
-            <td style="padding:10px 16px;border-bottom:1px solid #eee;font-family:monospace;background:#f8f9fa;color:#3a3a6e;font-size:15px;letter-spacing:1px;">${c.code}</td>
-          </tr>`
-        ).join('');
+        // Build email HTML list — show clickable link if available, else code text
+        const linkListHtml = codes.map((c, i) => {
+          const linkCell = c.link_url
+            ? `<a href="${c.link_url}" style="color:#667eea;font-weight:700;text-decoration:none;word-break:break-all;">${c.link_url}</a>`
+            : `<span style="font-family:monospace;background:#f8f9fa;color:#3a3a6e;padding:2px 6px;border-radius:4px;">${c.code}</span>`;
+          return `<tr>
+            <td style="padding:12px 16px;border-bottom:1px solid #eee;color:#888;font-size:13px;">${i + 1}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid #eee;font-weight:600;color:#2c3e50;">${c.title || ''}</td>
+            <td style="padding:12px 16px;border-bottom:1px solid #eee;">${linkCell}</td>
+          </tr>`;
+        }).join('');
 
         const mailOptions = {
           from: process.env.EMAIL_USER,
           to: email,
-          subject: 'Your Access Code(s) - Hidden Future Entertainment',
+          subject: 'Your Access Link(s) - Hidden Future Entertainment',
           html: `
             <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:560px;margin:0 auto;padding:30px 20px;">
-              <h2 style="color:#2c3e50;margin-bottom:8px;">Welcome to the Future of Entertainment!</h2>
-              <p style="color:#7f8c8d;margin-bottom:24px;">Thank you for your interest. Here ${codes.length === 1 ? 'is your access code' : 'are your access codes'}:</p>
+              <h2 style="color:#2c3e50;margin-bottom:8px;">Welcome to the Hidden Future of Entertainment!</h2>
+              <p style="color:#7f8c8d;margin-bottom:24px;">Thank you for your interest. Here ${codes.length === 1 ? 'is your access link' : 'are your access links'}:</p>
               <table style="width:100%;border-collapse:collapse;border-radius:10px;overflow:hidden;border:1px solid #eee;">
                 <thead>
                   <tr style="background:#f0f4ff;">
                     <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">#</th>
                     <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">TITLE</th>
-                    <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">CODE</th>
+                    <th style="padding:10px 16px;text-align:left;font-size:12px;color:#888;">LINK</th>
                   </tr>
                 </thead>
-                <tbody>${codeListHtml}</tbody>
+                <tbody>${linkListHtml}</tbody>
               </table>
-              <p style="color:#95a5a6;font-size:13px;margin-top:24px;">I will be straightforward with you. Since the video is not owned by me, I can't sell it to you directly. Enter email and code will be sent to you to download the content.</p>
+              <p style="color:#95a5a6;font-size:13px;margin-top:24px;">Click the link(s) above to access the content. These links are shared exclusively with you.</p>
               <p style="color:#95a5a6;font-size:13px;">Best regards,<br><strong style="color:#2c3e50;">Hidden Future Entertainment Team</strong></p>
             </div>
           `
@@ -279,7 +284,7 @@ function sendCodes(email, count, res) {
             console.error('Email error:', error.message);
             return res.json({ success: true, message: 'Code saved! Email delivery may be delayed — check your spam folder.' });
           }
-          res.json({ success: true, message: `${codes.length} code${codes.length > 1 ? 's' : ''} sent to your email!` });
+          res.json({ success: true, message: `${codes.length} link${codes.length > 1 ? 's' : ''} sent to your email!` });
         });
       }
     );
@@ -346,16 +351,15 @@ app.get('/api/codes', (req, res) => {
 
 app.post('/api/codes', (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
-  const { code, title } = req.body;
+  const { code, title, link_url, serial_order: reqOrder } = req.body;
   if (!code || !code.trim()) return res.status(400).json({ error: 'Code is required' });
 
-  // Assign next serial_order
   db.get('SELECT MAX(serial_order) as max FROM codes', [], (err, row) => {
     if (err) return res.status(500).json({ error: 'Database error' });
-    const nextOrder = (row.max || 0) + 1;
+    const nextOrder = reqOrder ? parseInt(reqOrder) : (row.max || 0) + 1;
     db.run(
-      'INSERT INTO codes (serial_order, code, title) VALUES (?, ?, ?)',
-      [nextOrder, code.trim(), (title || '').trim()],
+      'INSERT INTO codes (serial_order, code, title, link_url) VALUES (?, ?, ?, ?)',
+      [nextOrder, code.trim(), (title || '').trim(), (link_url || '').trim()],
       function(err) {
         if (err) {
           if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Code already exists' });
@@ -369,13 +373,13 @@ app.post('/api/codes', (req, res) => {
 
 app.put('/api/codes/:id', (req, res) => {
   if (!req.session.loggedIn) return res.status(401).json({ error: 'Unauthorized' });
-  const { code, title, serial_order } = req.body;
+  const { code, title, serial_order, link_url } = req.body;
   const { id } = req.params;
   if (!code || !code.trim()) return res.status(400).json({ error: 'Code is required' });
 
   db.run(
-    'UPDATE codes SET code = ?, title = ?, serial_order = ? WHERE id = ?',
-    [code.trim(), (title || '').trim(), serial_order, id],
+    'UPDATE codes SET code = ?, title = ?, serial_order = ?, link_url = ? WHERE id = ?',
+    [code.trim(), (title || '').trim(), serial_order, (link_url || '').trim(), id],
     function(err) {
       if (err) {
         if (err.message.includes('UNIQUE')) return res.status(400).json({ error: 'Code or serial order already exists' });

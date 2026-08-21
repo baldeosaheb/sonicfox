@@ -218,7 +218,7 @@
 </div>
 
 <div class="global-note" id="globalNote">
-    <strong>Global default:</strong> loading…
+    <strong>Global default:</strong> loading… (number of links sent to each user unless overridden)
 </div>
 
 <div class="table-section">
@@ -236,7 +236,7 @@
                     <th>Requests</th>
                     <th>Codes Sent History</th>
                     <th>Last Request</th>
-                    <th>Codes Override</th>
+                    <th>Links Override</th>
                     <th></th>
                 </tr>
             </thead>
@@ -256,7 +256,7 @@
             const data = await res.json();
             globalCount = data.serial_count;
             document.getElementById('globalNote').innerHTML =
-                `<strong>Global default:</strong> ${globalCount} code${globalCount !== 1 ? 's' : ''} sent to everyone unless overridden below.`;
+                `<strong>Global default:</strong> ${globalCount} link${globalCount !== 1 ? 's' : ''} sent to everyone unless overridden below.`;
         } catch (e) {}
     }
 
@@ -351,7 +351,7 @@
             });
             const data = await res.json();
             if (!res.ok) { toast(data.error || 'Save failed', 'error'); return; }
-            toast(`Override set: ${email} → ${n} code${n > 1 ? 's' : ''}`, 'success');
+            toast(`Override set: ${email} → ${n} link${n > 1 ? 's' : ''}`, 'success');
             await loadUsers();
         } catch (e) { toast('Network error', 'error'); }
     }

@@ -254,8 +254,8 @@
 <div class="serial-card">
     <div class="serial-icon">🔢</div>
     <div class="serial-info">
-        <h2>Codes Per Email</h2>
-        <p>Number of codes sent to each user who requests access</p>
+        <h2>Links Per Email</h2>
+        <p>Number of download links sent to each user who requests access</p>
         <div class="serial-hint" id="serialHint">Loading…</div>
     </div>
     <div class="serial-control">
@@ -289,7 +289,7 @@
                 <tr>
                     <th>#</th>
                     <th>Email</th>
-                    <th>Codes Sent</th>
+                    <th>Links Sent</th>
                     <th>Timestamp</th>
                 </tr>
             </thead>
@@ -330,7 +330,7 @@
     function updateSerialHint() {
         const n = parseInt(document.getElementById('serialInput').value) || currentSerial;
         document.getElementById('serialHint').textContent =
-            `Currently sending codes 1 – ${n}  ·  ${maxCodes} total code${maxCodes !== 1 ? 's' : ''} in DB`;
+            `Currently sending links 1 – ${n}  ·  ${maxCodes} total entr${maxCodes !== 1 ? 'ies' : 'y'} in DB`;
     }
 
     function changeSerial(delta) {
@@ -360,7 +360,7 @@
             if (!res.ok) { toast(data.error || 'Save failed', 'error'); return; }
             currentSerial = n;
             updateSerialHint();
-            toast(`Saved! Users will now receive ${n} code${n > 1 ? 's' : ''}`, 'success');
+            toast(`Saved! Users will now receive ${n} link${n > 1 ? 's' : ''}`, 'success');
         } catch (e) {
             toast('Network error', 'error');
         } finally {

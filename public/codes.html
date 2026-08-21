@@ -250,18 +250,19 @@
 </div>
 
 <div class="add-section">
-    <h2>➕ Add New Code</h2>
+    <h2>➕ Add New Entry</h2>
     <div class="form-row">
         <input type="number" id="newOrder" class="num-input" placeholder="#" min="1" title="Serial order (position in list)">
         <input type="text"   id="newTitle" placeholder="Title  e.g. Episode 11">
-        <input type="text"   id="newCode"  placeholder="Code  e.g. DEMO-2026-011">
-        <button class="btn btn-success" id="addBtn" onclick="addCode()">Add Code</button>
+        <input type="text"   id="newCode"  placeholder="Code / ID  e.g. DEMO-2026-011">
+        <input type="url"    id="newLink"  placeholder="Link  e.g. https://fromsmash.com/sonicfox-1">
+        <button class="btn btn-success" id="addBtn" onclick="addCode()">Add</button>
     </div>
     <div id="addError" style="margin-top:10px;color:#e74c3c;font-size:13px;display:none;"></div>
 </div>
 
 <div class="table-section">
-    <h2>All Codes <span style="font-size:13px;color:#aaa;font-weight:400;">(ordered by serial position — this is the order users receive them)</span></h2>
+    <h2>All Entries <span style="font-size:13px;color:#aaa;font-weight:400;">(ordered by serial position — this is the order users receive them)</span></h2>
 
     <div class="filter-row">
         <input type="text" id="searchInput" placeholder="Search by title or code…" oninput="renderTable()">
@@ -274,7 +275,8 @@
                 <tr>
                     <th>Position</th>
                     <th>Title</th>
-                    <th>Code</th>
+                    <th>Code / ID</th>
+                    <th>Link URL</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -332,11 +334,15 @@
     }
 
     function viewRow(c) {
+        const linkDisplay = c.link_url
+            ? `<a href="${esc(c.link_url)}" target="_blank" style="color:#667eea;word-break:break-all;font-size:13px;">${esc(c.link_url)}</a>`
+            : `<span style="color:#ccc;font-style:italic;">—</span>`;
         return `
         <tr id="row-${c.id}">
             <td><span class="order-badge">${c.serial_order}</span></td>
             <td>${esc(c.title) || '<span style="color:#ccc;font-style:italic;">—</span>'}</td>
             <td><span class="code-text">${esc(c.code)}</span></td>
+            <td>${linkDisplay}</td>
             <td>
                 <div class="actions">
                     <button class="btn btn-primary btn-sm" onclick="startEdit(${c.id})">Edit</button>
@@ -349,9 +355,10 @@
     function editRow(c) {
         return `
         <tr id="row-${c.id}" style="background:#f0f4ff;">
-            <td><input class="edit-input num" id="edit-order-${c.id}" type="number" value="${c.serial_order}" min="1"></td>
-            <td><input class="edit-input"     id="edit-title-${c.id}" value="${esc(c.title)}"  placeholder="Title"></td>
-            <td><input class="edit-input mono" id="edit-code-${c.id}" value="${esc(c.code)}"   placeholder="Code"></td>
+            <td><input class="edit-input num"  id="edit-order-${c.id}" type="number" value="${c.serial_order}" min="1"></td>
+            <td><input class="edit-input"      id="edit-title-${c.id}" value="${esc(c.title)}"   placeholder="Title"></td>
+            <td><input class="edit-input mono" id="edit-code-${c.id}"  value="${esc(c.code)}"    placeholder="Code / ID"></td>
+            <td><input class="edit-input"      id="edit-link-${c.id}"  value="${esc(c.link_url || '')}" placeholder="https://fromsmash.com/..."></td>
             <td>
                 <div class="actions">
                     <button class="btn btn-success  btn-sm" onclick="saveEdit(${c.id})">Save</button>
@@ -380,17 +387,19 @@
         btn.disabled = true;
         btn.textContent = 'Adding…';
 
+        const link  = document.getElementById('newLink').value.trim();
         try {
             const res  = await fetch('/api/codes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, title, serial_order: order || undefined })
+                body: JSON.stringify({ code, title, link_url: link, serial_order: order || undefined })
             });
             const data = await res.json();
             if (!res.ok) { showAddError(data.error); return; }
 
             document.getElementById('newTitle').value = '';
             document.getElementById('newCode').value  = '';
+            document.getElementById('newLink').value  = '';
             toast('Code added!', 'success');
             await loadCodes();
         } catch (e) {
@@ -423,15 +432,16 @@
         const code  = document.getElementById(`edit-code-${id}`).value.trim();
         const title = document.getElementById(`edit-title-${id}`).value.trim();
         const order = parseInt(document.getElementById(`edit-order-${id}`).value);
+        const link  = document.getElementById(`edit-link-${id}`).value.trim();
 
-        if (!code)  { toast('Code cannot be empty', 'error'); return; }
+        if (!code)  { toast('Code / ID cannot be empty', 'error'); return; }
         if (!order) { toast('Position must be a number', 'error'); return; }
 
         try {
             const res  = await fetch(`/api/codes/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, title, serial_order: order })
+                body: JSON.stringify({ code, title, serial_order: order, link_url: link })
             });
             const data = await res.json();
             if (!res.ok) { toast(data.error || 'Update failed', 'error'); return; }
