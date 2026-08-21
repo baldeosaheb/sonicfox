@@ -257,11 +257,11 @@ function sendCodes(email, count, res) {
           (err) => { if (err) console.error('Submission save error:', err); }
         );
 
-        // Build email HTML list — show clickable link if available, else code text
+        // Build email HTML list — only show link, warn if missing
         const linkListHtml = codes.map((c, i) => {
           const linkCell = c.link_url
-            ? `<a href="${c.link_url}" style="color:#667eea;font-weight:700;text-decoration:none;word-break:break-all;">${c.link_url}</a>`
-            : `<span style="font-family:monospace;background:#f8f9fa;color:#3a3a6e;padding:2px 6px;border-radius:4px;">${c.code}</span>`;
+            ? `<a href="${c.link_url}" style="color:#667eea;font-weight:700;text-decoration:none;word-break:break-all;font-size:14px;">${c.link_url}</a>`
+            : `<span style="color:#e74c3c;font-size:13px;">⚠ Link not set yet — check back soon</span>`;
           return `<tr>
             <td style="padding:12px 16px;border-bottom:1px solid #eee;color:#888;font-size:13px;">${i + 1}</td>
             <td style="padding:12px 16px;border-bottom:1px solid #eee;font-weight:600;color:#2c3e50;">${c.title || ''}</td>
