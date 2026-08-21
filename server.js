@@ -10,8 +10,13 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// On Railway, use /data for persistent storage; locally use project root
+const DB_PATH = process.env.RAILWAY_ENVIRONMENT
+  ? '/data/database.db'
+  : 'database.db';
+
 // Initialize SQLite database
-const db = new sqlite3.Database('database.db', (err) => {
+const db = new sqlite3.Database(DB_PATH, (err) => {
   if (err) {
     console.error('Database connection error:', err);
   } else {
