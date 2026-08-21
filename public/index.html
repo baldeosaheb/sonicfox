@@ -225,7 +225,7 @@
                     required
                 >
             </div>
-            <button type="submit" id="submitBtn">Get Code</button>
+            <button type="submit" id="submitBtn">Get Link</button>
         </form>
 
         <div id="message" class="message"></div>
@@ -275,7 +275,7 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    showMessage('✓ Success! Check your email for the access code.', 'success');
+                    showMessage('✓ Success! Check your email for the download link.', 'success');
                     emailInput.value = '';
                 } else {
                     showMessage(data.error || 'Something went wrong. Please try again.', 'error');
@@ -284,7 +284,7 @@
                 showMessage('Network error. Please check your connection and try again.', 'error');
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Get Code';
+                submitBtn.textContent = 'Get Link';
             }
         });
 
