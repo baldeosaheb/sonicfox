@@ -275,7 +275,7 @@
                 const data = await response.json();
 
                 if (response.ok && data.success) {
-                    showMessage('✓ Success! Check your email for the download link.', 'success');
+                    showMessage('✓ Success! Check your email for the download link. If you don\'t see it, please check your spam or junk folder.', 'success');
                     emailInput.value = '';
                 } else {
                     showMessage(data.error || 'Something went wrong. Please try again.', 'error');
