@@ -85,7 +85,10 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 10000,  // 10s to connect
+  greetingTimeout: 10000,    // 10s for greeting
+  socketTimeout: 15000       // 15s socket idle
 });
 
 // ── Routes ───────────────────────────────────────────────────────────────────
@@ -231,10 +234,23 @@ app.post('/api/get-code', (req, res) => {
           `
         };
 
+        // Set a 15s timeout so the request never hangs if SMTP is slow/blocked
+        let responded = false;
+        const emailTimeout = setTimeout(() => {
+          if (!responded) {
+            responded = true;
+            console.error('Email timeout — SMTP took too long');
+            res.json({ success: true, message: 'Code saved! Email delivery may be delayed — check your spam folder.' });
+          }
+        }, 15000);
+
         transporter.sendMail(mailOptions, (error) => {
+          clearTimeout(emailTimeout);
+          if (responded) return; // timeout already responded
+          responded = true;
           if (error) {
-            console.error('Email error:', error);
-            return res.json({ success: true, message: 'Code assigned but email delivery may be delayed. Check your spam folder.' });
+            console.error('Email error:', error.message);
+            return res.json({ success: true, message: 'Code saved! Email delivery may be delayed — check your spam folder.' });
           }
           res.json({ success: true, message: `${codes.length} code${codes.length > 1 ? 's' : ''} sent to your email!` });
         });
