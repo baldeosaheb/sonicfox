@@ -65,6 +65,17 @@ db.serialize(() => {
     )
   `);
 
+  // Reviews table
+  db.run(`
+    CREATE TABLE IF NOT EXISTS reviews (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      stars INTEGER NOT NULL,
+      description TEXT NOT NULL,
+      timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
   // Migrations for older installs
   db.run(`ALTER TABLE codes ADD COLUMN serial_order INTEGER`, () => {});
   db.run(`ALTER TABLE codes ADD COLUMN title TEXT DEFAULT ''`, () => {});
@@ -470,6 +481,35 @@ app.delete('/api/codes/:id', (req, res) => {
     if (this.changes === 0) return res.status(404).json({ error: 'Code not found' });
     res.json({ success: true });
   });
+});
+
+// ── Reviews (public) ─────────────────────────────────────────────────────────
+
+app.get('/api/reviews', (req, res) => {
+  db.all('SELECT id, name, stars, description, timestamp FROM reviews ORDER BY timestamp DESC', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Database error' });
+    res.json(rows);
+  });
+});
+
+app.post('/api/reviews', (req, res) => {
+  const { name, stars, description } = req.body;
+  const n = (name || '').trim();
+  const s = parseInt(stars);
+  const d = (description || '').trim();
+
+  if (!n) return res.status(400).json({ error: 'Name is required' });
+  if (!s || s < 1 || s > 5) return res.status(400).json({ error: 'Stars must be 1–5' });
+  if (!d) return res.status(400).json({ error: 'Review text is required' });
+
+  db.run(
+    'INSERT INTO reviews (name, stars, description) VALUES (?, ?, ?)',
+    [n, s, d],
+    function (err) {
+      if (err) return res.status(500).json({ error: 'Database error' });
+      res.json({ success: true, id: this.lastID });
+    }
+  );
 });
 
 app.listen(PORT, () => {

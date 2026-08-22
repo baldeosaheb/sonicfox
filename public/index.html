@@ -122,6 +122,139 @@
             text-align: center;
         }
 
+        .reviews-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #ecf0f1;
+            text-align: left;
+        }
+
+        .reviews-section h3 {
+            text-align: center;
+            color: #2c3e50;
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .review-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 12px;
+            border: 1px solid #e9ecef;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .reviewer-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .review-stars {
+            color: #f39c12;
+            font-size: 13px;
+            letter-spacing: 1px;
+        }
+
+        .review-text {
+            color: #555;
+            font-size: 13.5px;
+            line-height: 1.5;
+        }
+
+        /* ── Review form ── */
+        .review-form-wrap {
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px dashed #dee2e6;
+        }
+
+        .review-form-wrap h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+
+        .review-form-wrap input,
+        .review-form-wrap textarea {
+            width: 100%;
+            padding: 11px 13px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        .review-form-wrap input:focus,
+        .review-form-wrap textarea:focus {
+            border-color: #667eea;
+        }
+
+        .review-form-wrap textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .star-selector {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+
+        .star-selector span {
+            font-size: 28px;
+            cursor: pointer;
+            color: #ddd;
+            transition: color 0.15s;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .star-selector span.active {
+            color: #f39c12;
+        }
+
+        .review-submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .review-submit-btn:hover { opacity: 0.88; }
+        .review-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .review-msg {
+            margin-top: 8px;
+            font-size: 13px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .review-msg.success { background:#d4edda; color:#155724; display:block; }
+        .review-msg.error   { background:#f8d7da; color:#721c24; display:block; }
+
         .reveal-btn {
             background: none;
             border: 2px dashed #bdc3c7;
@@ -264,6 +397,96 @@
                 </div>
             </div>
         </div>
+
+        <!-- Reviews Section -->
+        <div class="reviews-section">
+            <h3>⭐ What People Are Saying</h3>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Mastram Sharma</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text"> Bhai compilations king. Upar se leke neeche tak sab hila dala. Content rukna nahi chahiye. Full support hai.</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Aarju rani</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Uff, yaar... what is this?? So hot 🔥 Maza hi aa gaya, I kept replaying it again and again!</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Bad boy</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">GOAT editor. Straight up. You should be the official editor for every big creator out there. No one comes close.</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Kareeba Kapoor</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Editor Pro Max 📱 Bhai why did I not see this before?? I feel cheated that I missed out for so long. Absolutely mind-blowing.</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Virat Op</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Bro you should actually edit ALL the videos. Every. Single. One. I am serious, the difference is insane when you edit it.</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Ananya Randy</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Yaar mujhe toh neend nahi aayi raat ko. Itna accha edit tha ki bas dimaag mein ghoom raha tha. Peak content, bhai. Peak.</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Karan Patel</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Dekh ke aankhen khush ho gayi! Transitions, music, timing — sab kuch perfect tha. Hidden gem nahi raha ab yeh, sab ko bataunga!</p>
+            </div>
+
+            <div class="review-card">
+                <div class="review-header">
+                    <span class="reviewer-name">Deepika Rao</span>
+                    <span class="review-stars">★★★★★</span>
+                </div>
+                <p class="review-text">Honestly thought I had seen good edits before. Then I saw this and realised I had seen nothing. Bilkul next level. Shabaash! 🙌</p>
+            </div>
+
+            <!-- Review form -->
+            <div class="review-form-wrap">
+                <h4>✍️ Leave Your Review</h4>
+                <form id="reviewForm">
+                    <input type="text" id="reviewName" placeholder="Your name" maxlength="60" required>
+                    <div class="star-selector" id="starSelector">
+                        <span data-val="1">★</span>
+                        <span data-val="2">★</span>
+                        <span data-val="3">★</span>
+                        <span data-val="4">★</span>
+                        <span data-val="5">★</span>
+                    </div>
+                    <textarea id="reviewText" placeholder="Write your review..." maxlength="300" required></textarea>
+                    <button type="submit" class="review-submit-btn" id="reviewSubmitBtn">Submit Review</button>
+                </form>
+                <div id="reviewMsg" class="review-msg"></div>
+            </div>
+
+            <!-- Dynamic reviews from DB load here -->
+            <div id="dynamicReviews"></div>
+        </div>
     </div>
 
     <script>
@@ -324,6 +547,93 @@
             wrapper.style.display = visible ? 'none' : 'block';
             btn.innerHTML = visible ? 'Show QR Code &darr;' : 'Hide QR Code &uarr;';
         }
+
+        // ── Reviews ──────────────────────────────────────────────────────────
+
+        let selectedStars = 0;
+
+        const starSpans = document.querySelectorAll('#starSelector span');
+        starSpans.forEach(span => {
+            span.addEventListener('mouseover', () => highlightStars(parseInt(span.dataset.val)));
+            span.addEventListener('mouseout',  () => highlightStars(selectedStars));
+            span.addEventListener('click',     () => { selectedStars = parseInt(span.dataset.val); highlightStars(selectedStars); });
+        });
+
+        function highlightStars(n) {
+            starSpans.forEach(s => s.classList.toggle('active', parseInt(s.dataset.val) <= n));
+        }
+
+        document.getElementById('reviewForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = document.getElementById('reviewName').value.trim();
+            const desc = document.getElementById('reviewText').value.trim();
+            const btn  = document.getElementById('reviewSubmitBtn');
+
+            if (!selectedStars) { showReviewMsg('Please select a star rating', 'error'); return; }
+            if (!name)          { showReviewMsg('Please enter your name', 'error'); return; }
+            if (!desc)          { showReviewMsg('Please write your review', 'error'); return; }
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                const res  = await fetch('/api/reviews', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, stars: selectedStars, description: desc })
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    showReviewMsg('🎉 Thank you! Your review has been posted.', 'success');
+                    document.getElementById('reviewName').value = '';
+                    document.getElementById('reviewText').value = '';
+                    selectedStars = 0;
+                    highlightStars(0);
+                    loadDynamicReviews();
+                } else {
+                    showReviewMsg(data.error || 'Something went wrong.', 'error');
+                }
+            } catch {
+                showReviewMsg('Network error. Please try again.', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Submit Review';
+            }
+        });
+
+        function showReviewMsg(text, type) {
+            const el = document.getElementById('reviewMsg');
+            el.textContent = text;
+            el.className = 'review-msg ' + type;
+        }
+
+        async function loadDynamicReviews() {
+            try {
+                const res  = await fetch('/api/reviews');
+                const rows = await res.json();
+                const container = document.getElementById('dynamicReviews');
+                if (!Array.isArray(rows) || rows.length === 0) { container.innerHTML = ''; return; }
+                container.innerHTML = rows.map(r =>
+                    '<div class="review-card">' +
+                      '<div class="review-header">' +
+                        '<span class="reviewer-name">' + escHtml(r.name) + '</span>' +
+                        '<span class="review-stars">' + '★'.repeat(r.stars) + '☆'.repeat(5 - r.stars) + '</span>' +
+                      '</div>' +
+                      '<p class="review-text">' + escHtml(r.description) + '</p>' +
+                    '</div>'
+                ).join('');
+            } catch (err) { /* silently ignore */ }
+        }
+
+        function escHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        loadDynamicReviews();
 
         // Age gate — prevent background scroll
         document.body.style.overflow = 'hidden';
